@@ -10,37 +10,87 @@
 			padding: 0;
 			box-sizing: border-box;
 			font-family: sans-serif;
+			background: #FFFFFE;
 		}
 
-		.block_container {
+		.container {
 			margin: 20px;
 		}
 
+		.block_container {
+			margin-top: 20px;
+		}
+
 		.inputs_container {
-			margin-top: 15px;
+			margin-top: 10px;
 		}
 
 		.input {
 			margin-top: 5px;
 		}
+
+		.calendar {
+			margin-top: 10px;
+		}
+
+		table.month {
+		  border-collapse: collapse;
+		  border: 1px solid black;
+		  text-align: center;
+		}
+
+		table.month th, td {
+		  border: 1px solid black;
+		  padding: 5px;			
+		}
+
+		.first-shift {
+			background: blue;
+		}
+		.second-shift {
+			background: red;
+		}
+		.after-second-shift {
+			background: gray;
+		}
+		.weekend {
+			background: green;
+		}
+
+
+
+		
 	</style>
 </head>
 <body>
-	<div class="block_container">
-		<h3>Выберете, к какой рабочей смене относится установленная дата</h3>
-		<div class="inputs_container">
-			<input class="input" type="date" name="start_date">
-			<select class="input" name="date_type">
-			</select>
+	<main class="container">
+		<div class="block_container">
+			<h3>Выберете, к какой рабочей смене относится установленная дата</h3>
+			<div class="inputs_container">
+				<input class="input" type="date" name="start_date">
+				<select class="input" name="date_type">
+				</select>
+			</div>
 		</div>
-	</div>
-	<div class="block_container">
-		<h3>Выберете дату, для которой хотели узнать рабочую смену</h3>
-		<div class="inputs_container">
-			<input class="input" type="date" name="target_date">
-			<span class="input" id="target_date_type"></span>
+		<div class="block_container">
+			<h3>Выберете дату, для которой хотели узнать рабочую смену</h3>
+			<div class="inputs_container">
+				<input class="input" type="date" name="target_date">
+				<span class="input" id="target_date_type"></span>
+			</div>
 		</div>
-	</div>
+		<div class="block_container">
+			<h3>Календарь рабочих смен</h3>
+			<div>
+				Построить календарь с <input class="input" type="month" name="start_calendar_date"> 
+				по <input class="input" type="month" name="end_calendar_date">
+			</div>
+			<div class="calendar" id="calendar">
+				
+			</div>
+		</div>
+	</main>
+	
 
 	<script type="text/javascript">
 
@@ -53,7 +103,7 @@
 			document.getElementsByName(name)[0].value = value
 		}
 
-		function getStringDate(date) {
+		function getStringDate(date, withDays = true) {
 			let month = '' + (date.getMonth() + 1);
 			let day = '' + date.getDate();
 			if (date.getMonth() < 10) {
@@ -62,25 +112,34 @@
 			if (date.getDate() < 10) {
 				day = "0" + day;
 			}
-			return date.getFullYear() + '-' + month + '-' + day;
+			if (withDays) {
+				return date.getFullYear() + '-' + month + '-' + day;
+			} else {
+				return date.getFullYear() + '-' + month;
+			}
 		}
 
-		function getDateFromStringDate(stringDate) {
-			return new Date(`${stringDate}T00:00:00`)
+		function getDateFromStringDate(stringDate, withDays = true) {
+			if (withDays) {
+				return new Date(`${stringDate}T00:00:00`)
+			} else {
+				return new Date(`${stringDate}-01T00:00:00`)
+			}
 		}
-
-
-
-		let currentDate = new Date();
-		let currentDateFormatted = getStringDate(currentDate);
-		setInputValue("start_date", currentDateFormatted);
 
 		let dateTypeMap = {
-					 0: "Первая смена", 
-					 1: "Вторая смена",
-					 2: "Со второй смены",
-					 3: "Выходной"
-					}
+			0: "Первая смена",
+			1: "Вторая смена",
+			2: "Со второй смены",
+			3: "Выходной"
+		}
+
+		let dateTypeClassNameMap = {
+			0: "first-shift",
+			1: "second-shift",
+			2: "after-second-shift",
+			3: "weekend"
+		}
 
 
 		let startDateInput = document.getElementsByName("start_date")[0];
@@ -88,25 +147,34 @@
 		let targetDateInput = document.getElementsByName("target_date")[0];
 		let targetDateType = document.getElementById("target_date_type");
 
+		let currentDate = new Date();
+		let currentDateFormatted = getStringDate(currentDate);
+		startDateInput.value = currentDateFormatted;
+
+
 		for (const [dateTypeNumber, dateTypeText] of Object.entries(dateTypeMap)) {
 			var dateTypeOption = document.createElement('option');
-		    dateTypeOption.value = dateTypeNumber;
-		    dateTypeOption.innerHTML = dateTypeText;
-		    dateTypeInput.appendChild(dateTypeOption);
+			dateTypeOption.value = dateTypeNumber;
+			dateTypeOption.innerHTML = dateTypeText;
+			dateTypeInput.appendChild(dateTypeOption);
+		}
+
+		function getTargetDateType(startDate, targetDate, startDateTypeNumber) {
+			let daysNumberBetweenDates = Math.floor(((targetDate - startDate) / 86400000));
+			let targetDateTypeNumber;
+			if (daysNumberBetweenDates >= 0) {
+				targetDateTypeNumber = (daysNumberBetweenDates + startDateTypeNumber) % 4;
+			} else {
+				targetDateTypeNumber = Math.abs(4 + daysNumberBetweenDates - startDateTypeNumber) % 4;
+			}
+			return targetDateTypeNumber;
 		}
 
 		function setTargetDateType(startDateInput, startDateTypeInput, targetDateInput, targetDateType) {
 			let startDateTypeNumber = Number(startDateTypeInput.value);
 			let startDate = getDateFromStringDate(startDateInput.value)
-			let targetDate = getDateFromStringDate(targetDateInput.value)
-			let daysNumberBetweenDates = Math.floor(((targetDate - startDate) / 86400000));
-			let targetDateTypeNumber;
-			if (daysNumberBetweenDates >= 0) {
-				targetDateTypeNumber = (daysNumberBetweenDates + startDateTypeNumber) % 4;
-			}
-			else {
-				targetDateTypeNumber = Math.abs(4 + daysNumberBetweenDates - startDateTypeNumber) % 4;
-			}
+			let targetDate = getDateFromStringDate(targetDateInput.value);
+			let targetDateTypeNumber = getTargetDateType(startDate, targetDate, startDateTypeNumber);
 			targetDateType.innerText = dateTypeMap[targetDateTypeNumber];
 		}
 
@@ -120,10 +188,108 @@
 				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
 			}
 		};
-		targetDateInput.oninput = () => {setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)};
+		targetDateInput.oninput = () => {
+			setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
+		};
 
-		// console.log(getDateFromStringDate("2023-07-29"));
-		// console.log(getDateFromStringDate(getInputValue("start_date")));
+		let startCalendarDateInput = document.getElementsByName("start_calendar_date")[0];
+		let endCalendarDateInput = document.getElementsByName("end_calendar_date")[0];
+		startCalendarDateInput.value = getStringDate(currentDate, withDays = false);
+		endCalendarDateInput.value = getStringDate(currentDate, withDays = false);
+
+
+		let jsMonthMap = {
+			0: "Январь",
+			1: "Февраль",
+			2: "Март",
+			3: "Апрель",
+			4: "Май",
+			5: "Июнь",
+			6: "Июль",
+			7: "Август",
+			8: "Сентябрь",
+			9: "Октябрь",
+			10: "Ноябрь",
+			11: "Декабрь"
+		}
+
+		function getWeekDay(date) {
+			return (date.getDay() + 6) % 7 + 1; // [1; 7]
+		}
+
+		function getStyledMonthDays(date, startDate, startDateTypeNumber) {
+			let dateType = getTargetDateType(startDate, date, startDateTypeNumber);
+			let lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+			let firstMonthWeekDay = getWeekDay(date);
+			let lastMonthWeekDay = getWeekDay(lastDateOfMonth);
+
+			let monthDays = Array(firstMonthWeekDay - 1).fill('');
+			for (let monthDay = 1; monthDay <= lastDateOfMonth.getDate(); monthDay++) {
+				monthDays.push({value: monthDay, className: dateTypeClassNameMap[dateType]});
+				dateType = (dateType + 1) % 4;
+			}
+			monthDays = monthDays.concat(Array(7 - lastMonthWeekDay).fill(''));
+			return monthDays;
+		}
+
+		function getMonthHeadHTML(year, monthName) {
+			let tableHeadDOMElement = document.createElement("thead");
+			tableHeadDOMElement.innerHTML = `<tr>
+			    		<th colspan="7">${year} ${monthName}</th>
+			    	</tr>
+			        <tr>
+			            <th>Пн</th>
+			            <th>Вт</th>
+			            <th>Ср</th>
+			            <th>Чт</th>
+			            <th>Пт</th>
+			            <th>Сб</th>
+			            <th>Вс</th>
+			        </tr>`;
+			return tableHeadDOMElement;
+		}
+
+		function getMonthBodyHTML(monthDays) {
+			let tBodyDOMElement = document.createElement("tbody");
+			let trDOMElement = document.createElement("tr");
+			for (let i = 0; i < monthDays.length; i++) {
+				let tdDOMElement = document.createElement('td')
+				tdDOMElement.textContent = monthDays[i].value;
+				tdDOMElement.className = monthDays[i].className;
+				if (i % 7 === 0 && i != 0) {
+					tBodyDOMElement.appendChild(trDOMElement);
+					trDOMElement = document.createElement("tr");
+				}
+				trDOMElement.appendChild(tdDOMElement);
+			}
+			tBodyDOMElement.appendChild(trDOMElement);
+			return tBodyDOMElement;
+		}
+
+		function getMonthHTML(year, monthName, monthDays) {
+			let tableDOMElement = document.createElement('table');
+			tableDOMElement.className = "month";
+			tableDOMElement.appendChild(getMonthHeadHTML(year, monthName));
+			tableDOMElement.appendChild(getMonthBodyHTML(monthDays));
+			return tableDOMElement;
+		}
+
+		function drawMonth(date, startDate, startDateTypeNumber) {
+			let styledMonthDays = getStyledMonthDays(date, startDate, startDateTypeNumber);
+			
+			let monthDOMElement = getMonthHTML(date.getFullYear(), 
+										 jsMonthMap[date.getMonth()],
+										 styledMonthDays);
+			document.getElementById("calendar").appendChild(monthDOMElement)
+		}
+
+		function buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput) {
+
+		}
+
+
+		let date = getDateFromStringDate("2023-08", withDays = false)
+		drawMonth(getDateFromStringDate("2023-08", withDays = false), new Date(), 2)
 	</script>
 	
 </body>
