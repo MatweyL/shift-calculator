@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>График рабочих смен</title>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: sans-serif;
+		}
+
+		.block_container {
+			margin: 20px;
+		}
+
+		.inputs_container {
+			margin-top: 15px;
+		}
+
+		.input {
+			margin-top: 5px;
+		}
+	</style>
+</head>
+<body>
+	<div class="block_container">
+		<h3>Выберете, к какой рабочей смене относится установленная дата</h3>
+		<div class="inputs_container">
+			<input class="input" type="date" name="start_date">
+			<select class="input" name="date_type">
+			</select>
+		</div>
+	</div>
+	<div class="block_container">
+		<h3>Выберете дату, для которой хотели узнать рабочую смену</h3>
+		<div class="inputs_container">
+			<input class="input" type="date" name="target_date">
+			<span class="input" id="target_date_type"></span>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+
+		function getInputValue(name) {
+			return document.getElementsByName(name)[0].value
+		}
+
+		function setInputValue(name, value) {
+			document.getElementsByName(name)[0].value = value
+		}
+
+		function getStringDate(date) {
+			let month = '' + (date.getMonth() + 1);
+			let day = '' + date.getDate();
+			if (date.getMonth() < 10) {
+				month = "0" + month;
+			}
+			if (date.getDate() < 10) {
+				day = "0" + day;
+			}
+			return date.getFullYear() + '-' + month + '-' + day;
+		}
+
+		function getDateFromStringDate(stringDate) {
+			return new Date(`${stringDate}T00:00:00`)
+		}
+
+
+
+		let currentDate = new Date();
+		let currentDateFormatted = getStringDate(currentDate);
+		setInputValue("start_date", currentDateFormatted);
+
+		let dateTypeMap = {
+					 0: "Первая смена", 
+					 1: "Вторая смена",
+					 2: "Со второй смены",
+					 3: "Выходной"
+					}
+
+
+		let startDateInput = document.getElementsByName("start_date")[0];
+		let dateTypeInput = document.getElementsByName("date_type")[0];
+		let targetDateInput = document.getElementsByName("target_date")[0];
+		let targetDateType = document.getElementById("target_date_type");
+
+		for (const [dateTypeNumber, dateTypeText] of Object.entries(dateTypeMap)) {
+			var dateTypeOption = document.createElement('option');
+		    dateTypeOption.value = dateTypeNumber;
+		    dateTypeOption.innerHTML = dateTypeText;
+		    dateTypeInput.appendChild(dateTypeOption);
+		}
+
+		function setTargetDateType(startDateInput, startDateTypeInput, targetDateInput, targetDateType) {
+			let startDateTypeNumber = Number(startDateTypeInput.value);
+			let startDate = getDateFromStringDate(startDateInput.value)
+			let targetDate = getDateFromStringDate(targetDateInput.value)
+			let daysNumberBetweenDates = Math.floor(((targetDate - startDate) / 86400000));
+			let targetDateTypeNumber;
+			if (daysNumberBetweenDates >= 0) {
+				targetDateTypeNumber = (daysNumberBetweenDates + startDateTypeNumber) % 4;
+			}
+			else {
+				targetDateTypeNumber = Math.abs(4 + daysNumberBetweenDates - startDateTypeNumber) % 4;
+			}
+			targetDateType.innerText = dateTypeMap[targetDateTypeNumber];
+		}
+
+		startDateInput.oninput = () => {
+			if (targetDateInput.value) {
+				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
+			}
+		};
+		dateTypeInput.oninput = () => {
+			if (targetDateInput.value) {
+				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
+			}
+		};
+		targetDateInput.oninput = () => {setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)};
+
+		// console.log(getDateFromStringDate("2023-07-29"));
+		// console.log(getDateFromStringDate(getInputValue("start_date")));
+	</script>
+	
+</body>
+</html>
