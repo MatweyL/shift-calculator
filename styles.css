@@ -1,0 +1,54 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: sans-serif;
+	background: #FFFFFE;
+}
+
+.container {
+	margin: 20px;
+}
+
+.block_container {
+	margin-top: 20px;
+}
+
+.inputs_container {
+	margin-top: 10px;
+}
+
+.input {
+	margin-top: 5px;
+}
+
+.calendar {
+	margin-top: 10px;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+table.month {
+  border-collapse: collapse;
+  border: 1px solid black;
+  text-align: center;
+  margin: 3px;
+}
+
+table.month th, td {
+  border: 1px solid black;
+  padding: 3px;			
+}
+
+.first-shift {
+	background: green;
+}
+.second-shift {
+	background: forestgreen;
+}
+.after-second-shift {
+	background: limegreen;
+}
+.weekend {
+	background: lawngreen;
+}
