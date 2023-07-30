@@ -40,15 +40,34 @@ table.month th, td {
   padding: 3px;			
 }
 
+/* #FF4900 green*/
 .first-shift {
-	background: green;
+	background: #FF4900;
 }
+
+/* #E40045  forestgreen*/
 .second-shift {
-	background: forestgreen;
+	background: #E40045;
 }
+
+/* #00AF64 limegreen*/
 .after-second-shift {
-	background: limegreen;
+	background: #00AF64;
 }
+
+/* #67E300 lawngreen*/
 .weekend {
-	background: lawngreen;
+	background: #67E300;
+}
+
+.color_map {
+	margin-top: 10px;
+	width: 250px;
+}
+
+.color_map_item {
+	padding: 3px;
+}
+.color_map_item:first-child {
+	margin-top: 5px;
 }

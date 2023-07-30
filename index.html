@@ -29,6 +29,9 @@
 				Построить календарь с <input class="input" type="month" name="start_calendar_date"> 
 				по <input class="input" type="month" name="end_calendar_date">
 			</div>
+			<div class="block_container color_map" id="color_map">
+				<strong>Обозначения</strong>
+			</div>
 			<div class="calendar" id="calendar">
 				
 			</div>
@@ -238,6 +241,19 @@
 				nextCalendarDate.setMonth(nextCalendarDate.getMonth() + 1);
 			}
 		}
+
+		function drawDateTypeColorMap() {
+			let colorMapHTMLElement = document.createElement('div');
+			for (let i = 0; i <= 3; i++) {
+				let colorHTMLElement = document.createElement('div')
+				colorHTMLElement.textContent = dateTypeMap[i];
+				colorHTMLElement.className = dateTypeClassNameMap[i] + " color_map_item";
+				colorMapHTMLElement.appendChild(colorHTMLElement);
+			}
+			document.getElementById('color_map').appendChild(colorMapHTMLElement);
+		}
+
+		drawDateTypeColorMap();
 		buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
 		startDateInput.oninput = () => {
 			if (targetDateInput.value) {
