@@ -45,16 +45,16 @@
 		}
 
 		.first-shift {
-			background: blue;
+			background: green;
 		}
 		.second-shift {
-			background: red;
+			background: forestgreen;
 		}
 		.after-second-shift {
-			background: gray;
+			background: limegreen;
 		}
 		.weekend {
-			background: green;
+			background: lawngreen;
 		}
 
 
@@ -178,19 +178,6 @@
 			targetDateType.innerText = dateTypeMap[targetDateTypeNumber];
 		}
 
-		startDateInput.oninput = () => {
-			if (targetDateInput.value) {
-				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
-			}
-		};
-		dateTypeInput.oninput = () => {
-			if (targetDateInput.value) {
-				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
-			}
-		};
-		targetDateInput.oninput = () => {
-			setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType)
-		};
 
 		let startCalendarDateInput = document.getElementsByName("start_calendar_date")[0];
 		let endCalendarDateInput = document.getElementsByName("end_calendar_date")[0];
@@ -280,16 +267,55 @@
 			let monthDOMElement = getMonthHTML(date.getFullYear(), 
 										 jsMonthMap[date.getMonth()],
 										 styledMonthDays);
-			document.getElementById("calendar").appendChild(monthDOMElement)
+			document.getElementById("calendar").appendChild(monthDOMElement);
+		}
+
+		function clearCalendar(calendar) {
+			calendar.innerHTML = '';
 		}
 
 		function buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput) {
+			let calendar = document.getElementById("calendar");
+			clearCalendar(calendar);
 
+			let startCalendarDate = getDateFromStringDate(startCalendarDateInput.value, withDays=false);
+			let endCalendarDate = getDateFromStringDate(endCalendarDateInput.value, withDays=false);
+			let startDate = getDateFromStringDate(startDateInput.value);
+			let startDateType = Number(dateTypeInput.value);
+
+			let nextCalendarDate = startCalendarDate;
+			let boundCalendarDate = endCalendarDate;
+			if (startCalendarDate > endCalendarDate) {
+				nextCalendarDate = endCalendarDate;
+				boundCalendarDate = startCalendarDate;
+			}
+			while (nextCalendarDate <= boundCalendarDate) {
+				drawMonth(nextCalendarDate, startDate, startDateType);
+				nextCalendarDate.setMonth(nextCalendarDate.getMonth() + 1);
+			}
 		}
-
-
-		let date = getDateFromStringDate("2023-08", withDays = false)
-		drawMonth(getDateFromStringDate("2023-08", withDays = false), new Date(), 2)
+		buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
+		startDateInput.oninput = () => {
+			if (targetDateInput.value) {
+				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType);
+			}
+			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
+		};
+		dateTypeInput.oninput = () => {
+			if (targetDateInput.value) {
+				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType);
+			}
+			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
+		};
+		targetDateInput.oninput = () => {
+			setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType);
+		};
+		startCalendarDateInput.oninput = () => {
+			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
+		};
+		endCalendarDateInput.oninput = () => {
+			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
+		};
 	</script>
 	
 </body>
