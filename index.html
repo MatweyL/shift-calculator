@@ -96,7 +96,7 @@
 
 		let currentDate = new Date();
 		let currentDateFormatted = getStringDate(currentDate);
-		startDateInput.value = "2024-11-10";  // currentDateFormatted;
+		startDateInput.value = "2024-11-12";  // currentDateFormatted;
 
 
 		for (const [dateTypeNumber, dateTypeText] of Object.entries(dateTypeMap)) {
@@ -151,20 +151,22 @@
 			return (date.getDay() + 6) % 7 + 1; // [1; 7]
 		}
 
-		function getStyledMonthDays(date, startDate, startDateTypeNumber) {
-			let dateType = getTargetDateType(startDate, date, startDateTypeNumber);
-			let lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-			let firstMonthWeekDay = getWeekDay(date);
-			let lastMonthWeekDay = getWeekDay(lastDateOfMonth);
+        function getStyledMonthDays(date, startDate, startDateTypeNumber) {
+            let dateType = getTargetDateType(startDate, date, startDateTypeNumber);
+            let lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            let firstMonthWeekDay = getWeekDay(date);
+            let lastMonthWeekDay = getWeekDay(lastDateOfMonth);
 
-			let monthDays = Array(firstMonthWeekDay - 1).fill('');
-			for (let monthDay = 1; monthDay <= lastDateOfMonth.getDate(); monthDay++) {
-				monthDays.push({value: monthDay, className: dateTypeClassNameMap[dateType]});
-				dateType = (dateType + 1) % 4;
-			}
-			monthDays = monthDays.concat(Array(7 - lastMonthWeekDay).fill(''));
-			return monthDays;
-		}
+            let monthDays = Array(firstMonthWeekDay - 1).fill('');
+            for (let monthDay = 1; monthDay <= lastDateOfMonth.getDate(); monthDay++) {
+                let dayDate = new Date(date.getFullYear(), date.getMonth(), monthDay);
+                dateType = getTargetDateType(startDate, dayDate, startDateTypeNumber);
+                monthDays.push({value: monthDay, className: dateTypeClassNameMap[dateType]});
+            }
+            monthDays = monthDays.concat(Array(7 - lastMonthWeekDay).fill(''));
+            return monthDays;
+        }
+
 
 		function getMonthHeadHTML(year, monthName) {
 			let tableHeadDOMElement = document.createElement("thead");
