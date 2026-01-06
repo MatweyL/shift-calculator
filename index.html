@@ -9,84 +9,220 @@
 			margin: 0;
 			padding: 0;
 			box-sizing: border-box;
-			font-family: sans-serif;
-			background: #FFFFFE;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			padding: 20px;
 		}
 
 		.container {
-			margin: 20px;
+			max-width: 1400px;
+			margin: 0 auto;
+			background: white;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+		}
+
+		h3 {
+			color: #2d3748;
+			font-size: 1.4em;
+			margin-bottom: 15px;
+			font-weight: 600;
 		}
 
 		.block_container {
-			margin-top: 20px;
+			margin-top: 35px;
+			padding: 25px;
+			background: #f7fafc;
+			border-radius: 15px;
+			border: 2px solid #e2e8f0;
+		}
+
+		.block_container:first-child {
+			margin-top: 0;
 		}
 
 		.inputs_container {
-			margin-top: 10px;
+			margin-top: 15px;
+			display: flex;
+			gap: 15px;
+			flex-wrap: wrap;
+			align-items: center;
 		}
 
 		.input {
-			margin-top: 5px;
+			padding: 12px 16px;
+			border: 2px solid #cbd5e0;
+			border-radius: 10px;
+			font-size: 15px;
+			transition: all 0.3s ease;
+			background: white;
+		}
+
+		.input:hover {
+			border-color: #667eea;
+		}
+
+		.input:focus {
+			outline: none;
+			border-color: #667eea;
+			box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+		}
+
+		select.input {
+			cursor: pointer;
+			min-width: 180px;
+		}
+
+		#target_date_type {
+			background: #667eea;
+			color: white;
+			font-weight: 600;
+			padding: 12px 20px;
+			border-radius: 10px;
+			display: inline-block;
 		}
 
 		.calendar {
-			margin-top: 10px;
-			display: flex;
-			flex-wrap: wrap;
+			margin-top: 20px;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 20px;
 		}
 
 		table.month {
 			border-collapse: collapse;
-			border: 1px solid black;
 			text-align: center;
-			margin: 3px;
+			width: 100%;
+			background: white;
+			border-radius: 12px;
+			overflow: hidden;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 		}
 
-		table.month th, td {
-			border: 1px solid black;
-			padding: 3px;			
+		table.month thead {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+		}
+
+		table.month thead th {
+			padding: 12px 8px;
+			font-weight: 600;
+			font-size: 14px;
+		}
+
+		table.month thead tr:first-child th {
+			font-size: 16px;
+			padding: 15px;
+		}
+
+		table.month td {
+			padding: 10px;
+			font-weight: 500;
+			transition: all 0.2s ease;
+			border: 1px solid rgba(0, 0, 0, 0.05);
+		}
+
+		table.month td:hover {
+			transform: scale(1.1);
+			z-index: 10;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 		}
 
 		.first-shift {
 			background: #FF4900;
+			color: white;
 		}
 
 		.second-shift {
 			background: #E40045;
+			color: white;
 		}
 
 		.after-second-shift {
 			background: #00AF64;
+			color: white;
 		}
 
 		.weekend {
 			background: #67E300;
+			color: white;
 		}
 
 		.color_map {
-			margin-top: 10px;
-			width: 250px;
+			margin-top: 20px;
+			padding: 20px !important;
+			background: white !important;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			display: inline-block;
+		}
+
+		.color_map strong {
+			display: block;
+			margin-bottom: 12px;
+			color: #2d3748;
+			font-size: 16px;
+		}
+
+		.color_map > div {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
 		}
 
 		.color_map_item {
-			padding: 3px;
+			padding: 10px 18px !important;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 14px;
+			color: white;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+			transition: all 0.2s ease;
+		}
+
+		.color_map_item:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 		}
 
 		.color_map_item:first-child {
-			margin-top: 5px;
+			margin-top: 0;
 		}
 
 		.current-day {
-			font-weight: bold;
+			font-weight: 900;
 			position: relative;
+			box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.8) !important;
+			transform: scale(1.05);
 		}
 
 		.current-day::after {
 			content: '●';
 			position: absolute;
-			top: -5px;
-			right: 2px;
-			font-size: 8px;
+			top: 2px;
+			right: 4px;
+			font-size: 10px;
+			color: white;
+			text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+		}
+
+		@media (max-width: 768px) {
+			.container {
+				padding: 20px;
+			}
+
+			.calendar {
+				grid-template-columns: 1fr;
+			}
+
+			h3 {
+				font-size: 1.2em;
+			}
 		}
 	</style>
 </head>
