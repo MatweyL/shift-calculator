@@ -4,12 +4,96 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>График рабочих смен</title>
-	<link rel="stylesheet" type="text/css" href="styles.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: sans-serif;
+			background: #FFFFFE;
+		}
+
+		.container {
+			margin: 20px;
+		}
+
+		.block_container {
+			margin-top: 20px;
+		}
+
+		.inputs_container {
+			margin-top: 10px;
+		}
+
+		.input {
+			margin-top: 5px;
+		}
+
+		.calendar {
+			margin-top: 10px;
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		table.month {
+			border-collapse: collapse;
+			border: 1px solid black;
+			text-align: center;
+			margin: 3px;
+		}
+
+		table.month th, td {
+			border: 1px solid black;
+			padding: 3px;			
+		}
+
+		.first-shift {
+			background: #FF4900;
+		}
+
+		.second-shift {
+			background: #E40045;
+		}
+
+		.after-second-shift {
+			background: #00AF64;
+		}
+
+		.weekend {
+			background: #67E300;
+		}
+
+		.color_map {
+			margin-top: 10px;
+			width: 250px;
+		}
+
+		.color_map_item {
+			padding: 3px;
+		}
+
+		.color_map_item:first-child {
+			margin-top: 5px;
+		}
+
+		.current-day {
+			font-weight: bold;
+			position: relative;
+		}
+
+		.current-day::after {
+			content: '●';
+			position: absolute;
+			top: -5px;
+			right: 2px;
+			font-size: 8px;
+		}
+	</style>
 </head>
 <body>
 	<main class="container">
 		<div class="block_container">
-			<h3>Выберете, к какой рабочей смене относится установленная дата</h3>
+			<h3>Опорная дата (известная смена в прошлом)</h3>
 			<div class="inputs_container">
 				<input class="input" type="date" name="start_date">
 				<select class="input" name="date_type">
@@ -17,7 +101,7 @@
 			</div>
 		</div>
 		<div class="block_container">
-			<h3>Выберете дату, для которой хотели узнать рабочую смену</h3>
+			<h3>Узнать смену для конкретной даты</h3>
 			<div class="inputs_container">
 				<input class="input" type="date" name="target_date">
 				<span class="input" id="target_date_type"></span>
@@ -37,11 +121,8 @@
 			</div>
 		</div>
 	</main>
-	
 
 	<script type="text/javascript">
-
-
 		function getInputValue(name) {
 			return document.getElementsByName(name)[0].value
 		}
@@ -88,7 +169,6 @@
 			3: "weekend"
 		}
 
-
 		let startDateInput = document.getElementsByName("start_date")[0];
 		let dateTypeInput = document.getElementsByName("date_type")[0];
 		let targetDateInput = document.getElementsByName("target_date")[0];
@@ -96,8 +176,9 @@
 
 		let currentDate = new Date();
 		let currentDateFormatted = getStringDate(currentDate);
-		startDateInput.value = "2024-11-12";  // currentDateFormatted;
-
+		
+		// Опорная дата в прошлом (известная смена)
+		startDateInput.value = "2024-11-12";
 
 		for (const [dateTypeNumber, dateTypeText] of Object.entries(dateTypeMap)) {
 			var dateTypeOption = document.createElement('option');
@@ -125,12 +206,16 @@
 			targetDateType.innerText = dateTypeMap[targetDateTypeNumber];
 		}
 
-
 		let startCalendarDateInput = document.getElementsByName("start_calendar_date")[0];
 		let endCalendarDateInput = document.getElementsByName("end_calendar_date")[0];
+		
+		// Календарь начинается с текущего месяца
 		startCalendarDateInput.value = getStringDate(currentDate, withDays = false);
-		endCalendarDateInput.value = getStringDate(currentDate, withDays = false);
-
+		
+		// И показывает следующие 2 месяца
+		let endDate = new Date(currentDate);
+		endDate.setMonth(endDate.getMonth() + 2);
+		endCalendarDateInput.value = getStringDate(endDate, withDays = false);
 
 		let jsMonthMap = {
 			0: "Январь",
@@ -148,40 +233,50 @@
 		}
 
 		function getWeekDay(date) {
-			return (date.getDay() + 6) % 7 + 1; // [1; 7]
+			return (date.getDay() + 6) % 7 + 1;
 		}
 
-        function getStyledMonthDays(date, startDate, startDateTypeNumber) {
-            let dateType = getTargetDateType(startDate, date, startDateTypeNumber);
-            let lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            let firstMonthWeekDay = getWeekDay(date);
-            let lastMonthWeekDay = getWeekDay(lastDateOfMonth);
+		function getStyledMonthDays(date, startDate, startDateTypeNumber) {
+			let dateType = getTargetDateType(startDate, date, startDateTypeNumber);
+			let lastDateOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+			let firstMonthWeekDay = getWeekDay(date);
+			let lastMonthWeekDay = getWeekDay(lastDateOfMonth);
 
-            let monthDays = Array(firstMonthWeekDay - 1).fill('');
-            for (let monthDay = 1; monthDay <= lastDateOfMonth.getDate(); monthDay++) {
-                let dayDate = new Date(date.getFullYear(), date.getMonth(), monthDay);
-                dateType = getTargetDateType(startDate, dayDate, startDateTypeNumber);
-                monthDays.push({value: monthDay, className: dateTypeClassNameMap[dateType]});
-            }
-            monthDays = monthDays.concat(Array(7 - lastMonthWeekDay).fill(''));
-            return monthDays;
-        }
-
+			let monthDays = Array(firstMonthWeekDay - 1).fill('');
+			for (let monthDay = 1; monthDay <= lastDateOfMonth.getDate(); monthDay++) {
+				let dayDate = new Date(date.getFullYear(), date.getMonth(), monthDay);
+				dateType = getTargetDateType(startDate, dayDate, startDateTypeNumber);
+				
+				// Проверяем, является ли это текущим днем
+				let isCurrentDay = dayDate.getFullYear() === currentDate.getFullYear() &&
+								   dayDate.getMonth() === currentDate.getMonth() &&
+								   dayDate.getDate() === currentDate.getDate();
+				
+				let className = dateTypeClassNameMap[dateType];
+				if (isCurrentDay) {
+					className += ' current-day';
+				}
+				
+				monthDays.push({value: monthDay, className: className});
+			}
+			monthDays = monthDays.concat(Array(7 - lastMonthWeekDay).fill(''));
+			return monthDays;
+		}
 
 		function getMonthHeadHTML(year, monthName) {
 			let tableHeadDOMElement = document.createElement("thead");
 			tableHeadDOMElement.innerHTML = `<tr>
-			    		<th colspan="7">${year} ${monthName}</th>
-			    	</tr>
-			        <tr>
-			            <th>Пн</th>
-			            <th>Вт</th>
-			            <th>Ср</th>
-			            <th>Чт</th>
-			            <th>Пт</th>
-			            <th>Сб</th>
-			            <th>Вс</th>
-			        </tr>`;
+						<th colspan="7">${year} ${monthName}</th>
+					</tr>
+					<tr>
+						<th>Пн</th>
+						<th>Вт</th>
+						<th>Ср</th>
+						<th>Чт</th>
+						<th>Пт</th>
+						<th>Сб</th>
+						<th>Вс</th>
+					</tr>`;
 			return tableHeadDOMElement;
 		}
 
@@ -257,28 +352,32 @@
 
 		drawDateTypeColorMap();
 		buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
+		
 		startDateInput.oninput = () => {
 			if (targetDateInput.value) {
 				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType);
 			}
 			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
 		};
+		
 		dateTypeInput.oninput = () => {
 			if (targetDateInput.value) {
 				setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType);
 			}
 			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
 		};
+		
 		targetDateInput.oninput = () => {
 			setTargetDateType(startDateInput, dateTypeInput, targetDateInput, targetDateType);
 		};
+		
 		startCalendarDateInput.oninput = () => {
 			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
 		};
+		
 		endCalendarDateInput.oninput = () => {
 			buildCalendar(startCalendarDateInput, endCalendarDateInput, startDateInput, dateTypeInput);
 		};
 	</script>
-	
 </body>
 </html>
