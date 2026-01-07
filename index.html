@@ -289,7 +289,7 @@
 		<div class="block_container">
 			<h3>Опорная дата (известная смена в прошлом)</h3>
 			<div class="inputs_container">
-				<input class="input" type="date" name="start_date">
+				<input class="input" type="date" name="start_date" min="2024-01-01" и max="2040-12-31">
 				<select class="input" name="date_type">
 				</select>
 			</div>
@@ -297,15 +297,15 @@
 		<div class="block_container">
 			<h3>Узнать смену для конкретной даты</h3>
 			<div class="inputs_container">
-				<input class="input" type="date" name="target_date">
+				<input class="input" type="date" name="target_date" min="2024-01-01" и max="2040-12-31">
 				<span class="input" id="target_date_type"></span>
 			</div>
 		</div>
 		<div class="block_container">
 			<h3>Календарь рабочих смен</h3>
 			<div>
-				Построить календарь с <input class="input" type="month" name="start_calendar_date"> 
-				по <input class="input" type="month" name="end_calendar_date">
+				Построить календарь с <input class="input" type="month" name="start_calendar_date" min="2024-01" и max="2040-12"> 
+				по <input class="input" type="month" name="end_calendar_date" min="2024-01" и max="2040-12">
 			</div>
 			<div class="block_container color_map" id="color_map">
 				<strong>Обозначения</strong>
@@ -406,9 +406,9 @@
 		// Календарь начинается с текущего месяца
 		startCalendarDateInput.value = getStringDate(currentDate, withDays = false);
 		
-		// И показывает следующие 2 месяца
+		// И показывает следующие 12 месяцев
 		let endDate = new Date(currentDate);
-		endDate.setMonth(endDate.getMonth() + 2);
+		endDate.setMonth(endDate.getMonth() + 12);
 		endCalendarDateInput.value = getStringDate(endDate, withDays = false);
 
 		let jsMonthMap = {
